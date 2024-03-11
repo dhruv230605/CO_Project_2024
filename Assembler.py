@@ -2,43 +2,43 @@ import sys
 
 class errors():
     def checkLabel(inst, label_num, label_dict):
-        label_num+=1
+        
         if inst[1] in label_dict.keys():
             return
         else:
             sys.stdout.write(f'Error at line {label_num}: label not defined\n')
             sys.exit()
     def labelAlreadyExists(label, line_num, label_dict):
-        line_num+=1
+    
         if label in label_dict.keys():
             sys.stdout.write(f'Error at line {line_num}: label already exists\n')
             sys.exit()
 
 
     def check_reg(reg, rdict, line_num):
-        line_num+=1
+    
         if reg not in rdict:
             sys.stdout.write(f"Error: line {line_num}, register {reg} you are trying to access does not exist\n")
             sys.exit()
 
 
     def check_types(ins, opCode, line_num):
-        line_num+=1
+    
         if ins not in opCode:
             sys.stdout.write(f"Error: line {line_num}, instruction {ins} does not exist\n")
             sys.exit()
     def check_funct3(ins, opCode, line_num):
-        line_num+=1
+        
         if ins not in opCode:
             sys.stdout.write(f"Error: line {line_num}, instruction {ins} does not exist\n")
             sys.exit()
     def check_funct7(ins, opCode, line_num):
-        line_num+=1
+        
         if ins not in opCode:
             sys.stdout.write(f"Error: line {line_num}, instruction {ins} does not exist\n")
             sys.exit()
     def tooManyArguments(line_num):
-        line_num+=1
+        
         sys.stdout.write(f'Error at line {line_num}, too many arguments \n')
         sys.exit()
 
@@ -47,7 +47,7 @@ class errors():
         sys.stdout.write(f'Error at line {line_num}, too few arguments\n')
         sys.exit()
     def genError(line_num):
-        line_num+=1
+        
         sys.stdout.write(f'General Syntax Error at line {line_num}: something went wrong :( \n')
         sys.exit()
     def memOverflow():
@@ -203,7 +203,7 @@ def typeI(instr, line_num):
       errors.tooManyArguments(line_num)
     elif len(l1)<2 or len(l2)<2:
       errors.tooFewArguments(line_num)
-      imm=(utils.decimal_to_binary_1(l2[0],12,2))
+    imm=(utils.decimal_to_binary_1(l2[0],12,2))
     rs1=utils.get_reg(l2[1][:-1],line_num)
     rd=utils.get_reg(l1[0],line_num)
     return imm+rs1+funct3+rd+opcode
@@ -221,7 +221,7 @@ def typeI(instr, line_num):
         errors.tooManyArguments(line_num)
       elif len(l1)<3:
         errors.tooFewArguments(line_num)
-      imm=str(utils.decimal_to_binary_1(imm,12,2))
+      imm=str(utils.decimal_to_binary_1(l1[2],12,2))
       rs1=utils.get_reg(l1[1],line_num)
       rd=utils.get_reg(l1[0],line_num)
       return imm+rs1+funct3+rd+opcode
@@ -234,6 +234,8 @@ def typeI(instr, line_num):
     rs1=utils.get_reg(l1[1],line_num)
     rd=utils.get_reg(l1[0],line_num)
     return imm+rs1+funct3+rd+opcode
+
+
 
 
 #U Type Instruction set
