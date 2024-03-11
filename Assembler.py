@@ -198,15 +198,33 @@ def typeI(instr, line_num):
   opcode=utils.get_opcode(l3[0],line_num)
   funct3=utils.get_funct3(l3[0],line_num)
   if l3[0]=='lw':
-     l2=l1[1].split('(')
-     if len(l1)>2 or len(l2)>2:
+    l2=l1[1].split('(')
+    if len(l1)>2 or len(l2)>2:
       errors.tooManyArguments(line_num)
-     elif len(l1)<2 or len(l2)<2:
+    elif len(l1)<2 or len(l2)<2:
       errors.tooFewArguments(line_num)
-     imm=(utils.decimal_to_binary_1(l2[0],12,2))
-     rs1=utils.get_reg(l2[1][:-1],line_num)
-     rd=utils.get_reg(l1[0],line_num)
-     return imm+rs1+funct3+rd+opcode
+      imm=(utils.decimal_to_binary_1(l2[0],12,2))
+    rs1=utils.get_reg(l2[1][:-1],line_num)
+    rd=utils.get_reg(l1[0],line_num)
+    return imm+rs1+funct3+rd+opcode
+
+  elif l3[0]=='jalr':
+    if (l1[2].isnumeric()==False and l1[2][0]!="-"):
+      if len(l1)>3:
+        errors.tooManyArguments(line_num)
+      elif len(l1)<3:
+        errors.tooFewArguments(line_num)
+      imm=label_dict[l1[2]]-(line_num)*4
+      imm=str(utils.decimal_to_binary_1(imm,12,2))
+    else:
+      if len(l1)>3:
+        errors.tooManyArguments(line_num)
+      elif len(l1)<3:
+        errors.tooFewArguments(line_num)
+      imm=str(utils.decimal_to_binary_1(imm,12,2))
+      rs1=utils.get_reg(l1[1],line_num)
+      rd=utils.get_reg(l1[0],line_num)
+      return imm+rs1+funct3+rd+opcode
   else:
     if len(l1)>3:
       errors.tooManyArguments(line_num)
@@ -313,33 +331,33 @@ def typeB(instr, line_num):
     rs1=utils.get_reg(l1[0],line_num)
     immtwo=imm[7:-1]+imm[0]
     return immone+rs2+rs1+funct3+immtwo+opcode
-# try:
-for i in range(len(assembly)):
-    linenumber+=1
-    if assembly[i].strip()=='':
-        continue
-    type=utils.typechecker(assembly[i],i)
-    if (type=='R'):
+try:
+  for i in range(len(assembly)):
+      linenumber+=1
+      if assembly[i].strip()=='':
+          continue
+      type=utils.typechecker(assembly[i],i)
+      if (type=='R'):
 
-        outputbinary+=typeR(assembly[i],i)+'\n'
-    elif (type=='I'):
-        outputbinary+=typeI(assembly[i],i)+'\n'
-    elif (type=='S'):
-        outputbinary+=typeS(assembly[i],i)+'\n'
-    elif (type=='B'):
-        outputbinary+=typeB(assembly[i],i)+'\n'
-    elif (type=='U'):
-        outputbinary+=typeU(assembly[i],i)+'\n'
-    elif (type=='J'):
-        outputbinary+=typeJ(assembly[i],i)+'\n'
-    if (i==len(assembly)-1 and assembly[i]!=virtual_halt):
-            errors.nohalt()
+          outputbinary+=typeR(assembly[i],i)+'\n'
+      elif (type=='I'):
+          outputbinary+=typeI(assembly[i],i)+'\n'
+      elif (type=='S'):
+          outputbinary+=typeS(assembly[i],i)+'\n'
+      elif (type=='B'):
+          outputbinary+=typeB(assembly[i],i)+'\n'
+      elif (type=='U'):
+          outputbinary+=typeU(assembly[i],i)+'\n'
+      elif (type=='J'):
+          outputbinary+=typeJ(assembly[i],i)+'\n'
+      if (i==len(assembly)-1 and assembly[i]!=virtual_halt):
+              errors.nohalt()
 
-# except SystemExit:
-#     print('Exiting')
-#     sys.exit()
-# except:
-#     errors.genError(linenumber)
+except SystemExit:
+    print('Exiting')
+    sys.exit()
+except:
+    errors.genError(linenumber)
 f=open(out,'w')
 f.write(outputbinary)
 
