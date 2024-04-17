@@ -243,6 +243,12 @@ def and_func(rd,rs1,rs2):
     value[rd]=srs1&srs2
 
 def typeR(x):
+  function3={"add":"000","sub":"000","sll":"001","slt":"010","sltu":"011","xor":"100",
+        "srl":"101","or":"110","and":"111","lw":"010","addi":"000","sltiu":"011",
+        "jalr":"000","sw":"010",'beq':"000",'bne':"001",'blt':"100",'bge':"101",
+        'bltu':"110",'bgeu':"111"}
+    function7={"add":"0000000","sub":"0100000","sll":"0000000","slt":"0000000","sltu":"0000000","xor":"0000000",
+        "srl":"0000000","or":"0000000","and":"0000000"}
     for j in registers.values():
         if j==x[-8:-13:-1]:
             rd=j
@@ -250,11 +256,11 @@ def typeR(x):
             rs1=j
         if j==x[-21:-26:-1]:
             rs2=j
-    for j in funct3.values():
+    for j in function3.values():
         if j==x[-13:-16:-1]:
             funct3=j
             break
-    for j in funct7.values():
+    for j in function7.values():
         if j==x[-26:-33:-1]:
             funct7=j
             break
@@ -339,11 +345,13 @@ def convertbin(decimal_num, num_bits):
 def printreg(a):
     print('0b'+converttobin(a,32),end=' ')
     for i in value:
-        print('0b'+converttobin(value[i],32))
+        print('0b'+convertbin(value[i],32),end=' ')
+    print()
 
 def printmemory():
     for i in memory:
-        print(i+':'+'0b'+converttobin(memory[i],32))
+        print(i+':'+'0b'+convertbin(memory[i],32))
+
 
 for i in range(32):
     memory[converttohex(65536 + i*4)] = 0
