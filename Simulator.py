@@ -12,49 +12,49 @@ funct3={"add":"000","sub":"000","sll":"001","slt":"010","sltu":"011","xor":"100"
 funct7={"add":"0000000","sub":"0100000","sll":"0000000","slt":"0000000","sltu":"0000000","xor":"0000000",
         "srl":"0000000","or":"0000000","and":"0000000"}
 types={'1100011':'B',"1101111":'J',"0110111":'U',"0010111":'U',"0100011":'S',"0000011":'I',"1100111":'I',"0010011":'I' ,"0110011":'R'}
-# class J_type:
-#     def __init__(self,ins:str,pc:int) -> None:
-#         super().__init__(ins,pc)
-#         self.instr=self.parse(self.instr,[20,25,32])
-#         self.imm = self.instr[0]
-#         self.rd=self.instr[1]
-#         #self.comp=(self.opcode,)
-#     def execute(self):
-#         print("j type")
-#         #a = (a >> 4) << 4
-#         registers[self.rd]=self.pc+4
-#         print('rd = ', self.rd, ' value at rd = ', registers[self.rd])
+class J_type:
+    def __init__(self,ins:str,pc:int) -> None:
+        super().__init__(ins,pc)
+        self.instr=self.parse(self.instr,[20,25,32])
+        self.imm = self.instr[0]
+        self.rd=self.instr[1]
+        #self.comp=(self.opcode,)
+    def execute(self):
+        print("j type")
+        #a = (a >> 4) << 4
+        registers[self.rd]=self.pc+4
+        print('rd = ', self.rd, ' value at rd = ', registers[self.rd])
 
-#         print('unscrambled imm = ', self.imm)
-#         self.imm = self.imm[10:0:-1] + self.imm[11] + self.imm[19:11:-1] + self.imm[0]
-#         self.imm=self.imm[::-1] + '0'
+        print('unscrambled imm = ', self.imm)
+        self.imm = self.imm[10:0:-1] + self.imm[11] + self.imm[19:11:-1] + self.imm[0]
+        self.imm=self.imm[::-1] + '0'
 
-#         print('imm binary = ', self.imm)
-#         if self.imm[0] == '0':
-#             self.pc=self.pc+int(self.imm,2)
-#             print('imm = ', int(self.imm,2))
-#         else:
-#             self.pc=self.pc-int(self.twoscomp(int(self.imm,2),20),2)
-#             print('imm = ', -int(self.twoscomp(int(self.imm,2),20),2))
-#         # self.pc=(self.pc>>1)<<1
+        print('imm binary = ', self.imm)
+        if self.imm[0] == '0':
+            self.pc=self.pc+int(self.imm,2)
+            print('imm = ', int(self.imm,2))
+        else:
+            self.pc=self.pc-int(self.twoscomp(int(self.imm,2),20),2)
+            print('imm = ', -int(self.twoscomp(int(self.imm,2),20),2))
+        # self.pc=(self.pc>>1)<<1
 
 class U_type(instr):
-    # def __init__(self,ins:str,pc:int) -> None:
-    #     super().__init__(ins,pc)
-    #     self.instr = self.parse(self.instr, [20,25,32])
-    #     self.imm = self.instr[0]
-    #     self.rd = self.instr[1]
-    #     self.op = self.instr[2]
-    #     print(self.instr)
-    #     imm = self.imm + 12*'0'
-    #     self.sextimm = int(imm,2) if imm[0]=='0' else -int(self.twoscomp(int(self.imm,2),32),2)
-    # def execute(self):
-    #     print('u type')
-    #     if self.op=='0110111': #lui
-    #         registers[self.rd] = self.sextimm
-    #     else:
-    #         registers[self.rd] = self.pc+ self.sextimm
-    #     self.pc+=4
+    def __init__(self,ins:str,pc:int) -> None:
+        super().__init__(ins,pc)
+        self.instr = self.parse(self.instr, [20,25,32])
+        self.imm = self.instr[0]
+        self.rd = self.instr[1]
+        self.op = self.instr[2]
+        print(self.instr)
+        imm = self.imm + 12*'0'
+        self.sextimm = int(imm,2) if imm[0]=='0' else -int(self.twoscomp(int(self.imm,2),32),2)
+    def execute(self):
+        print('u type')
+        if self.op=='0110111': #lui
+            registers[self.rd] = self.sextimm
+        else:
+            registers[self.rd] = self.pc+ self.sextimm
+        self.pc+=4
 
 # Replace typeJ function with J_type class
 def typeJ(instruction):
@@ -63,8 +63,10 @@ def typeJ(instruction):
 
 # Replace typeU function with U_type class
 def typeU(instruction):
-    u_inst = U_type(instruction)
-    u_inst.execute()
+    if a[-7:]=='0010111':
+        rd=a[-12:-7]
+        value[rd]=a[:-12]
+
 
 #type S
 def execute_typeS(instruction, value, pc, mem):
@@ -343,7 +345,7 @@ def convertbin(decimal_num, num_bits):
         return binary_num
 
 def printreg(a):
-    print('0b'+converttobin(a,32),end=' ')
+    print('0b'+convertbin(a,32),end=' ')
     for i in value:
         print('0b'+convertbin(value[i],32),end=' ')
     print()
@@ -359,15 +361,17 @@ for i in range(32):
 f=open("input.txt",'r')
 instructions=f.readlines()
 
-count = 4
+count = 0
 for i in instructions:
     PC[count] = i.strip()
     count+=4
 
-pcount=4
-while(pcount<=4*len(instructions)):
+pcount=0
+while(pcount<=4*(len(instructions)-1)):
     currentinstruction=PC[pcount]
     if(currentinstruction=="00000000000000000000000001100011"):
+        pcount+=4
+        printreg(pcount)
         break
     typ=gettype(currentinstruction)
     if typ=='R':
@@ -375,15 +379,18 @@ while(pcount<=4*len(instructions)):
         pcount+=4
     elif typ=='B':
         pcount=execute_typeB(currentinstruction,pcount, value)
+        continue
     elif typ=='J':
         typeJ(currentinstruction)
+        continue
     elif typ=='I':
         typeI(currentinstruction)
     elif typ=='S':
         pcount=execute_typeS(currentinstruction, value, pcount, memory)
     elif typ=='U':
-        typeU(currentinstruction)
-    printreg(pcount-4)
+        typeU(currentinstruction,pcount)
+        pcount+=4
+    printreg(pcount)
 
-printreg(pcount-4)
+printreg(pcount)
 printmemory()
